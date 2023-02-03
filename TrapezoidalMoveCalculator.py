@@ -1,8 +1,17 @@
+#Import Libraries 
 import matplotlib.pyplot as plt
 import numpy as np
 
-print("Select Trap Move. Type a, b, or c: \n")
+#The functions for the Y axes on a seperate Python program and then importing the modules
+from config import Standard_Y as sy  
+from config import Custom_Y as cy 
+from config import Tri_Y as ty 
+
+#Displays Menu 
+print("Standard or Custom Trap Move?\n")
 ans = input("a - Standard\n b - Custom Trap\n  c - Triangle\n\nSelect: ")
+
+#------------------------------------------------------------------------------
 
 #STANDARD TRAP
 if ans == "Standard" or ans=="standard" or ans=="a":
@@ -17,59 +26,16 @@ if ans == "Standard" or ans=="standard" or ans=="a":
     #This will populate the x-axis, or the time
     xaxis1 = np.linspace(0,time,3100)
     
-    '''The next arrays will populate the y-axis, the velocity in inches per second.
+    '''The next arrays will populate the y-axis: position, velocity, and acceleration.
     Recall that a trap move consists of an increase in velocity, dwell (constant vel),
     and a decrease in velocty''' 
     
     '''Y'''
-    #Y function for POSITION 
-    def Y_Val_POS():
-        
-        m_list = [[(np.median(xaxis1))**2, np.median(xaxis1)], [time**2, time]]
-        A = np.array(m_list)
-        
-        B = np.array([max_velocity, 0])
-        X = np.linalg.inv(A).dot(B)
-        
-        quad_x = X[0]
-        linear_x = X[1]
-
-        Y_Concat_POS = ((quad_x/3)*(xaxis1**3)) + ((linear_x/2)*(xaxis1**2))
-        return Y_Concat_POS
+    yaxis1POS = sy.Y_Val_POS(xaxis1, time, max_velocity)
+    yaxis1VEL = sy.Y_Val_VEL(max_velocity)
+    yaxis1ACCEL = sy.Y_Val_ACCEL(max_velocity)
     
-    yaxis1POS = Y_Val_POS()
-    
-    #Y function for VELOCITY 
-    def Y_Val_VEL():
-        #the velocity increase:
-        Yaccel = np.linspace(0,max_velocity,1100)
-        #the dwell:
-        Ydwell = [max_velocity for i in range(900)]
-        #the veloctiy decrease:
-        Ydecel = np.linspace(max_velocity, 0, 1100) 
-        #this concatenates the prior arrays to make one, consolidated, final y-axis
-        Y_Concat = np.concatenate((Yaccel, Ydwell, Ydecel))
-        return Y_Concat
-    
-    yaxis1VEL = Y_Val_VEL()
-    
-    
-    #Y function for ACCELERATION 
-    def Y_Val_ACCEL():
-        #the velocity increase:
-        Yaccel1 = [max_velocity for i in range(1100)]
-        #the dwell:
-        Ydwell1 = [0 for i in range(900)]
-        #the veloctiy decrease:
-        Ydecel1 = [-max_velocity for i in range(1100)]
-        #this concatenates the prior arrays to make one, consolidated, final y-axis
-        Y_Concat1 = np.concatenate((Yaccel1, Ydwell1, Ydecel1))
-        return Y_Concat1
-    
-    yaxis1ACCEL = Y_Val_ACCEL()
-
-
-    #----------- CODE FROM HERE ON OUT SETS UP MULTI AXIS LABELS --------------
+    #----------- SETS UP MULTI AXIS LABELS --------------
     def make_patch_spines_invisible(ax):
         ax.set_frame_on(True)
         ax.patch.set_visible(False)
@@ -113,12 +79,15 @@ if ans == "Standard" or ans=="standard" or ans=="a":
     
     lines = [p1, p2, p3]
     
-    #can un-comment this to get a legend, but it is messy
+    #can un-comment this to get a legend, but I find it to clutter the screen 
     #host.legend(lines, [l.get_label() for l in lines])
     
+
     plt.grid(True, axis='both')
     plt.title("Standard Trap Move")
     plt.show()
+
+#------------------------------------------------------------------------------
 
 #CUSTOM TRAP    
 elif ans == "Custom Trap" or ans=="custom trap" or ans=="custom" or ans=="b":
@@ -137,58 +106,23 @@ elif ans == "Custom Trap" or ans=="custom trap" or ans=="custom" or ans=="b":
         
     '''X'''
     #This will populate the x-axis, or the time
-    Xaccel = np.linspace(0, accelTime/10*9, 10)
-    XdwellTime = np.linspace(accelTime, accelTime + timeAtConstantVel, 11)
-    Xdecel = np.linspace(accelTime + timeAtConstantVel + decelTime/10 ,time_of_move,10)
+    Xaccel = np.linspace(0, accelTime/1000*900, 1000)
+    XdwellTime = np.linspace(accelTime, accelTime + timeAtConstantVel, 1100)
+    Xdecel = np.linspace(accelTime + timeAtConstantVel + decelTime/1000 ,time_of_move,1000)
          
     xaxis2 = np.concatenate((Xaccel, XdwellTime, Xdecel))
     
-    '''Y'''
-    #Y function for POSITION 
-    def Y_Val_POS():
-        
-        m_list = [[(np.median(xaxis2))**2, np.median(xaxis2)], [time_of_move**2, time_of_move]]
-        A = np.array(m_list)
-        
-        B = np.array([peakVel, 0])
-        X = np.linalg.inv(A).dot(B)
-        
-        quad_x = X[0]
-        linear_x = X[1]
+    '''The next arrays will populate the y-axis: position, velocity, and acceleration.
+    Recall that a trap move consists of an increase in velocity, dwell (constant vel),
+    and a decrease in velocty''' 
     
-        Y_Concat_POS = ((quad_x/3)*(xaxis2**3)) + ((linear_x/2)*(xaxis2**2))
-        return Y_Concat_POS
+    '''Y'''    
+    yaxis1POS = cy.Y_Val_POS(xaxis2, time_of_move, peakVel)
+    yaxis1VEL = cy.Y_Val_VEL(peakVel)
+    yaxis1ACCEL = cy.Y_Val_ACCEL(peakVel)
     
-    yaxis1POS = Y_Val_POS()
-    
-    #Y function for VELOCITY 
-    def Y_Val_VEL():
-        #the velocity increase:
-        Yaccel = np.linspace(0,peakVel,11)
-        #the dwell:
-        Ydwell = [peakVel for i in range(9)]
-        #the veloctiy decrease:
-        Ydecel = np.linspace(peakVel, 0, 11) 
-        #this concatenates the prior arrays to make one, consolidated, final y-axis
-        Y_Concat = np.concatenate((Yaccel, Ydwell, Ydecel))
-        return Y_Concat
-    
-    yaxis1VEL = Y_Val_VEL()
+    #----------- SETS UP MULTI AXIS LABELS --------------
 
-    #Y function for ACCELERATION 
-    def Y_Val_ACCEL():
-        #the velocity increase:
-        Yaccel1 = [peakVel for i in range(11)]
-        #the dwell:
-        Ydwell1 = [0 for i in range(9)]
-        #the veloctiy decrease:
-        Ydecel1 = [-peakVel for i in range(11)]
-        #this concatenates the prior arrays to make one, consolidated, final y-axis
-        Y_Concat1 = np.concatenate((Yaccel1, Ydwell1, Ydecel1))
-        return Y_Concat1
-    
-    yaxis1ACCEL = Y_Val_ACCEL()
-    
     def make_patch_spines_invisible(ax):
         ax.set_frame_on(True)
         ax.patch.set_visible(False)
@@ -232,12 +166,14 @@ elif ans == "Custom Trap" or ans=="custom trap" or ans=="custom" or ans=="b":
 
     lines = [p1, p2, p3]
 
-    #can un-comment this to get a legend, but it is messy
+    #can un-comment this to get a legend, but I find it to clutter the screen 
     #host.legend(lines, [l.get_label() for l in lines])
 
     plt.grid(True, axis='both')
     plt.title("Custom Trap Move")
     plt.show()
+    
+#------------------------------------------------------------------------------
 
 #TRIANGLE    
 elif ans == "Triangle" or ans=="triangle" or ans == "c":
@@ -264,60 +200,17 @@ elif ans == "Triangle" or ans=="triangle" or ans == "c":
          
     xaxis2 = np.concatenate((Xaccel, XdwellTime, Xdecel))
     
-    
     '''The next arrays will populate the y-axis, the velocity in inches per second.
     Recall that a trap move consists of an increase in velocity, dwell (constant vel),
     and a decrease in velocty''' 
     
     '''Y'''
-    
-    #Y function for POSITION 
-    def Y_Val_POS():
-        
-        m_list = [[(np.median(xaxis2))**2, np.median(xaxis2)], [time_of_move**2, time_of_move]]
-        A = np.array(m_list)
-        
-        B = np.array([peakVel, 0])
-        X = np.linalg.inv(A).dot(B)
-        
-        quad_x = X[0]
-        linear_x = X[1]
-    
-        Y_Concat_POS = ((quad_x/3)*(xaxis2**3)) + ((linear_x/2)*(xaxis2**2))
-        return Y_Concat_POS
-    
-    yaxis1POS = Y_Val_POS()
-    
-    #Y function for VELOCITY 
-    def Y_Val_VEL():
-        #the velocity increase:
-        Yaccel = np.linspace(0,peakVel,11)
-        #the dwell:
-        Ydwell = [peakVel for i in range(9)]
-        #the veloctiy decrease:
-        Ydecel = np.linspace(peakVel, 0, 11) 
-        #this concatenates the prior arrays to make one, consolidated, final y-axis
-        Y_Concat = np.concatenate((Yaccel, Ydwell, Ydecel))
-        return Y_Concat
-    
-    yaxis1VEL = Y_Val_VEL()
-    
-    #Y function for ACCELERATION 
-    def Y_Val_ACCEL():
-        #the velocity increase:
-        Yaccel1 = [peakVel for i in range(11)]
-        #the dwell:
-        Ydwell1 = [0 for i in range(9)]
-        #the veloctiy decrease:
-        Ydecel1 = [-peakVel for i in range(11)]
-        #this concatenates the prior arrays to make one, consolidated, final y-axis
-        Y_Concat1 = np.concatenate((Yaccel1, Ydwell1, Ydecel1))
-        return Y_Concat1
-    
-    yaxis1ACCEL = Y_Val_ACCEL()
+    yaxis1POS = ty.Y_Val_POS(xaxis2, time_of_move, peakVel)
+    yaxis1VEL = ty.Y_Val_VEL(peakVel)
+    yaxis1ACCEL = ty.Y_Val_ACCEL(peakVel)
     
     
-    #----------- CODE FROM HERE ON OUT SETS UP MULTI AXIS LABELS --------------
+    #----------- SETS UP MULTI AXIS LABELS --------------
     def make_patch_spines_invisible(ax):
         ax.set_frame_on(True)
         ax.patch.set_visible(False)
@@ -361,7 +254,7 @@ elif ans == "Triangle" or ans=="triangle" or ans == "c":
     
     lines = [p1, p2, p3]
     
-    #can un-comment this to get a legend, but it is messy
+    #can un-comment this to get a legend, but I find it to clutter the screen 
     #host.legend(lines, [l.get_label() for l in lines])
     
     plt.grid(True, axis='both')
